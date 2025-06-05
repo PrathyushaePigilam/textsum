@@ -1,0 +1,7 @@
+streamlit
+spacy
+st-copy-to-clipboard
+PyMuPDF
+nltk
+scikit-learn
+numpy
