@@ -5,3 +5,4 @@ PyMuPDF
 nltk
 scikit-learn
 numpy
+python-docx

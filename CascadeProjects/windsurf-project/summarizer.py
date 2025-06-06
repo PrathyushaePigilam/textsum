@@ -13,7 +13,9 @@ class TextSummarizer:
     def __init__(self):
         self.stop_words = set(stopwords.words('english'))
         self.punctuation = set(punctuation)
-        self.max_sentences = 3  # Default number of sentences in summary
+        self.max_sentences = 3  # Fixed number of sentences in summary
+        self.min_summary_length = 50  # Minimum length in characters
+        self.max_summary_length = 200  # Maximum length in characters
 
     def preprocess_text(self, text: str) -> str:
         """
@@ -85,7 +87,38 @@ class TextSummarizer:
         # Join sentences to form summary
         summary = ' '.join([sentence for sentence, _ in top_sentences])
         
-        return summary.strip()
+        # Ensure summary is within length constraints
+        if len(summary) < self.min_summary_length:
+            # If too short, try to add more sentences
+            additional_sentences = sorted(
+                sentence_scores.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )[self.max_sentences:self.max_sentences+2]
+            
+            additional_summary = ' '.join([sentence for sentence, _ in additional_sentences])
+            summary = summary + ' ' + additional_summary
+            
+            # If still too short, add more sentences
+            if len(summary) < self.min_summary_length:
+                additional_sentences = sorted(
+                    sentence_scores.items(),
+                    key=lambda x: x[1],
+                    reverse=True
+                )[self.max_sentences+2:self.max_sentences+4]
+                additional_summary = ' '.join([sentence for sentence, _ in additional_sentences])
+                summary = summary + ' ' + additional_summary
+                
+        # Trim if too long
+        if len(summary) > self.max_summary_length:
+            summary = summary[:self.max_summary_length].rsplit(' ', 1)[0] + '...'
+        
+        # Format summary consistently
+        summary = summary.strip()
+        summary = summary[0].upper() + summary[1:]  # Capitalize first letter
+        summary = summary + '.' if not summary.endswith('.') else summary  # Add period if missing
+        
+        return summary
         
 
 # Example usage
